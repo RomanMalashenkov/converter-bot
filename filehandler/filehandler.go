@@ -6,10 +6,6 @@ import (
 	"os/exec"
 )
 
-type File struct {
-	store string
-}
-
 // проверка существования папок и их создания (если отстутствуют)
 func CheckFolder(store string) {
 	if _, err := os.Stat(store); os.IsNotExist(err) {

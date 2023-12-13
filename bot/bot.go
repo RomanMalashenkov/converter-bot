@@ -6,9 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RomanMalashenkov/config"
-	"github.com/RomanMalashenkov/filehandler"
-
+	"github.com/RomanMalashenkov/tg_bot/config"
+	"github.com/RomanMalashenkov/tg_bot/filehandler"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -18,9 +17,9 @@ func StartBot() {
 		log.Fatal("No config")
 	}
 
-	filehandler.CheckFolder(botConf.config.Store)
-	filehandler.CheckFolder(botConf.config.Store + "webm")
-	filehandler.CheckFolder(botConf.config.Store + "mp4")
+	filehandler.CheckFolder(botConf.Store)
+	filehandler.CheckFolder(botConf.Store + "webm")
+	filehandler.CheckFolder(botConf.Store + "mp4")
 
 	b, err := tele.NewBot(tele.Settings{
 		Token:  botConf.TelegramToken,

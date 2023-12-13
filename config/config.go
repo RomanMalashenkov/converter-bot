@@ -13,13 +13,14 @@ type BotConf struct {
 }
 
 // получение конфигур бота из переменных окружения
-func GetConfig() (BotConf, error) {
+func GetConfig() (*BotConf, error) {
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Print("No .env getting from actual env")
 	}
 
-	return BotConf{
+	return &BotConf{
 		TelegramToken: os.Getenv("TELE_TOKEN"),
 		Store:         os.Getenv("STORE"),
 	}, nil
