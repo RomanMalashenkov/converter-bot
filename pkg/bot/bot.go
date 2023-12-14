@@ -64,42 +64,43 @@ func StartBot() {
 			return err
 		}
 
+		// Создание клавиатуры для выбора формата конвертации
+		btns := [][]tele.Btn{
+			{
+				tele.Btn{
+					Text: fmt.Sprintf("Конвертировать в .jpg"),
+					Data: "convert_to_jpg",
+				},
+				tele.Btn{
+					Text: fmt.Sprintf("Конвертировать в .png"),
+					Data: "convert_to_png",
+				},
+				// Добавьте другие форматы, если необходимо
+			},
+		}
+
+		// Отправка сообщения с кнопками выбора формата конвертации
+		_, err = b.Send(c.Chat(), "Выберите формат для конвертации:", &tele.ReplyMarkup{
+			InlineKeyboard: convertToInlineButtons(btns),
+		})
+		if err != nil {
+			return err
+		}
+
 		// Получаем URL файла по его FileID
 		fileURL, err := api.GetFileURL(b, doc.FileID)
 		if err != nil {
 			log.Printf("Failed to get file URL: %s", err)
 			return err
 		}
+
 		// Отправляем запрос на конвертацию изображения
 		err = filehandler.ConvertAndSendImage(fileURL, c, b)
 		if err != nil {
 			log.Printf("Failed to convert and send image: %s", err)
 			return err
 		}
-		/*
-			// Создание клавиатуры для выбора формата конвертации
-			btns := [][]tele.Btn{
-				{
-					tele.Btn{
-						Text: fmt.Sprintf("Конвертировать в .jpg"),
-						Data: "convert_to_jpg",
-					},
-					tele.Btn{
-						Text: fmt.Sprintf("Конвертировать в .png"),
-						Data: "convert_to_png",
-					},
-					// Добавьте другие форматы, если необходимо
-				},
-			}
 
-				// Отправка сообщения с кнопками выбора формата конвертации
-				_, err := b.Send(c.Chat(), "Выберите формат для конвертации:", &tele.ReplyMarkup{
-					InlineKeyboard: btns,
-				})
-				if err != nil {
-					return err
-				}
-		*/
 		return nil
 	})
 
@@ -107,3 +108,29 @@ func StartBot() {
 
 	b.Start()
 }
+
+func convertToInlineButtons(btns [][]tele.Btn) [][]tele.InlineButton {
+	var inlineBtns [][]tele.InlineButton
+	for _, btnRow := range btns {
+		var inlineRow []tele.InlineButton
+		for _, btn := range btnRow {
+			inlineRow = append(inlineRow, tele.InlineButton{
+				Unique: btn.Data,
+				Text:   btn.Text,
+			})
+		}
+		inlineBtns = append(inlineBtns, inlineRow)
+	}
+	return inlineBtns
+}
+
+/*
+// Отправляем запрос на конвертацию изображения
+		err = filehandler.ConvertAndSendImage(fileURL, c, b)
+		if err != nil {
+			log.Printf("Failed to convert and send image: %s", err)
+			return err
+		}
+		return nil
+	})
+*/

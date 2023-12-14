@@ -63,22 +63,3 @@ func ConvertAndSendImage(fileURL string, c tele.Context, bot *tele.Bot) error {
 
 	return nil
 }
-
-/*
-// ф-я для конвертации webm в mp4
-func WebmToMp4(in string, out string) error {
-	cmd := exec.Command("ffmpeg", "-i", in, out)
-
-	log.Print(cmd.Args) //лог команду, которая будет выполнена
-
-	err := cmd.Run()
-
-	if err != nil {
-		log.Print(cmd.Stderr) //Логаем вывод ошибок
-		log.Print(cmd.Stdout) //Логает стандартный вывод
-
-		return err
-	}
-	return nil
-}
-*/
