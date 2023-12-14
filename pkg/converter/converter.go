@@ -3,9 +3,11 @@ package converter
 import (
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
 	"github.com/sunshineplan/imgconv"
+	tele "gopkg.in/telebot.v3"
 )
 
 // проверяет, поддерживается ли формат для конвертации
@@ -21,6 +23,23 @@ func IsSupported(ext string) bool {
 	return false
 }
 
+func ConvertToInlineButtons(btns [][]tele.Btn) [][]tele.InlineButton {
+	var inlineBtns [][]tele.InlineButton
+	for _, btnRow := range btns {
+		var inlineRow []tele.InlineButton
+		for _, btn := range btnRow {
+			inlineRow = append(inlineRow, tele.InlineButton{
+				Unique: btn.Data,
+				Text:   btn.Text,
+			})
+			log.Printf("Уникальный ID кнопки: %s, Текст кнопки: %s\n", btn.Data, btn.Text)
+		}
+		inlineBtns = append(inlineBtns, inlineRow)
+	}
+	return inlineBtns
+}
+
+// функция конвертации
 func Convert(w io.Writer, r io.Reader, format imgconv.Format) error {
 	srcImage, err := imgconv.Decode(r)
 	if err != nil {

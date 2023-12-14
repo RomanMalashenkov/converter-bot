@@ -17,9 +17,7 @@ import (
 )
 
 var (
-	//fileURL    string
 	userFileID string
-	userFormat imgconv.Format
 )
 
 func StartBot() {
@@ -52,8 +50,6 @@ func StartBot() {
 		return err
 	})
 
-	//var format imgconv.Format
-
 	// обработка изображения, отправленного пользователем
 	b.Handle(tele.OnDocument, func(c tele.Context) error {
 		log.Printf("[LOG]: User: %s | Controller: OnDocument ", c.Message().Sender.Username)
@@ -85,33 +81,18 @@ func StartBot() {
 
 		// Отправка сообщения с кнопками выбора формата конвертации
 		_, err = b.Send(c.Chat(), "Выберите формат для конвертации:", &tele.ReplyMarkup{
-			InlineKeyboard: convertToInlineButtons(btns),
+			InlineKeyboard: converter.ConvertToInlineButtons(btns),
 		})
 		if err != nil {
 			return err
 		}
 
 		// Сохраняем информацию о файле для последующей обработки
-		//userFileID = c.Message().Document.FileID
 		userFileID = doc.FileID
-		/*
-			// Получаем URL файла по его FileID
-			fileURL, err = api.GetFileURL(b, doc.FileID)
-			if err != nil {
-				log.Printf("Failed to get file URL: %s", err)
-				return err
-			}
 
-			// Отправляем запрос на конвертацию изображения
-			err = filehandler.ConvertAndSendImage(fileURL, c, b, format)
-			if err != nil {
-				log.Printf("Failed to convert and send image: %s", err)
-				return err
-			}
-		*/
 		return nil
 	})
-	////////////////////////////////////////////////////////////////////////////////////
+
 	// обработка выбора формата конвертации
 	b.Handle(tele.OnCallback, func(c tele.Context) error {
 		data := c.Callback().Data // появляется префикс ♀
@@ -145,17 +126,7 @@ func StartBot() {
 			}
 
 			log.Println("Пользователь выбрал формат конвертации:", selectedFormat)
-			/////////////////////////////////////
-			// Если формат выбран, обрабатываем его дальше
-			/*if selectedFormat != 0 {
-			// Определите ID файла и URL, чтобы затем выполнить конвертацию и отправку файла
-			fileID := getFileIDFromContext(c)
-			fileURL, err := api.GetFileURL(b, fileID)
-			if err != nil {
-				log.Printf("Failed to get file URL: %s", err)
-				return err
-			}
-			*/
+
 			// Выполните конвертацию и отправку файла
 			err = filehandler.ConvertAndSendImage(fileURL, c, b, selectedFormat)
 			if err != nil {
@@ -164,81 +135,10 @@ func StartBot() {
 			}
 		} else {
 			log.Println("Сообщение не содержит документ")
-
 		}
 
-		/*
-			switch data {
-			case "convert_to_jpeg":
-				userFormat = imgconv.JPEG
-			case "convert_to_png":
-				userFormat = imgconv.PNG
-			case "convert_to_gif":
-				userFormat = imgconv.GIF
-			case "convert_to_tiff":
-				userFormat = imgconv.TIFF
-			case "convert_to_bmp":
-				userFormat = imgconv.BMP
-			case "convert_to_pdf":
-				userFormat = imgconv.PDF
-			}
-
-			log.Printf("Пользователь выбрал формат конвертации %v", userFormat)
-
-			// Если есть информация о файле и выбранном формате - конвертируем и отправляем файл
-			if userFileID != "" && userFormat != 0 {
-				fileURL, err := api.GetFileURL(b, userFileID)
-				if err != nil {
-					log.Printf("Failed to get file URL: %s", err)
-					return err
-				} else {
-					log.Println("отпр ф через апи тг") ////////////////
-				}
-
-				err = filehandler.ConvertAndSendImage(fileURL, c, b, userFormat)
-				if err != nil {
-					log.Printf("Failed to convert and send image: %s", err)
-					return err
-				} else {
-					log.Println("отправ сконв ф") ////////////////
-				}
-
-				// Очищаем сохраненные данные
-				userFileID = ""
-				userFormat = 0
-				log.Println("очи сохр") ////////////////
-			}
-		*/
 		return nil
 	})
 
 	b.Start()
-}
-
-func convertToInlineButtons(btns [][]tele.Btn) [][]tele.InlineButton {
-	var inlineBtns [][]tele.InlineButton
-	for _, btnRow := range btns {
-		var inlineRow []tele.InlineButton
-		for _, btn := range btnRow {
-			inlineRow = append(inlineRow, tele.InlineButton{
-				Unique: btn.Data,
-				Text:   btn.Text,
-			})
-			log.Printf("Уникальный ID кнопки: %s, Текст кнопки: %s\n", btn.Data, btn.Text)
-			log.Printf("Тип данных btn.Data: %T", btn.Data)
-		}
-		inlineBtns = append(inlineBtns, inlineRow)
-	}
-	return inlineBtns
-}
-
-// Функция получения ID файла из контекста
-func getFileIDFromContext(c tele.Context) string {
-	switch c.Message().Document {
-	case nil:
-		log.Println("Сообщение не содержит документ")
-		return ""
-	default:
-		return c.Message().Document.FileID
-	}
 }
