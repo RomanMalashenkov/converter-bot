@@ -21,14 +21,14 @@ func IsSupported(ext string) bool {
 	return false
 }
 
-func Convert(w io.Writer, r io.Reader) error {
+func Convert(w io.Writer, r io.Reader, format imgconv.Format) error {
 	srcImage, err := imgconv.Decode(r)
 	if err != nil {
 		return fmt.Errorf("decode image: %w", err)
 	}
 
 	// Создаем экземпляр структуры imgconv.FormatOption
-	formatOption := imgconv.FormatOption{Format: imgconv.PNG}
+	formatOption := imgconv.FormatOption{Format: format}
 
 	err = imgconv.Write(w, srcImage, &formatOption)
 	if err != nil {
