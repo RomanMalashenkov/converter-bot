@@ -1,18 +1,15 @@
 package bot
 
 import (
-	"bytes"
-	"crypto/tls"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"path/filepath"
 	"time"
 
+	"github.com/RomanMalashenkov/tg_bot/pkg/api"
 	"github.com/RomanMalashenkov/tg_bot/pkg/config"
 	"github.com/RomanMalashenkov/tg_bot/pkg/converter"
-	"github.com/sunshineplan/imgconv"
+	"github.com/RomanMalashenkov/tg_bot/pkg/filehandler"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -68,13 +65,13 @@ func StartBot() {
 		}
 
 		// Получаем URL файла по его FileID
-		fileURL, err := api.getFileURL(b, doc.FileID)
+		fileURL, err := api.GetFileURL(b, doc.FileID)
 		if err != nil {
 			log.Printf("Failed to get file URL: %s", err)
 			return err
 		}
 		// Отправляем запрос на конвертацию изображения
-		err = convertAndSendImage(fileURL, c, b)
+		err = filehandler.ConvertAndSendImage(fileURL, c, b)
 		if err != nil {
 			log.Printf("Failed to convert and send image: %s", err)
 			return err
@@ -109,73 +106,4 @@ func StartBot() {
 	// обработка выбора формата конвертации
 
 	b.Start()
-}
-
-func convertAndSendImage(fileURL string, c tele.Context, bot *tele.Bot) error {
-	// Создаем HTTP клиента для загрузки изображения
-	client := http.Client{
-		Transport: cloneTransport(),
-	}
-
-	// Отправляем GET запрос для загрузки изображения
-	res, err := client.Get(fileURL)
-	if err != nil {
-		log.Printf("Failed to fetch image: %s", err)
-		return err
-	}
-	defer res.Body.Close()
-
-	// Проверяем успешность запроса
-	if res.StatusCode != http.StatusOK {
-		log.Printf("Failed to fetch image: %s", res.Status)
-		return fmt.Errorf("failed to fetch image: %s", res.Status)
-	}
-
-	// Конвертируем изображение
-	buffer := new(bytes.Buffer)
-	err = convert(buffer, res.Body)
-	if err != nil {
-		log.Printf("Failed to convert image: %s", err)
-		return err
-	}
-
-	// Отправляем сконвертированное изображение
-	_, err = bot.Send(c.Chat(), &tele.Photo{
-		File:    tele.FromReader(buffer),
-		Caption: "Конвертированное изображение",
-	})
-	if err != nil {
-		log.Printf("Failed to send image: %s", err)
-		return err
-	}
-
-	return nil
-}
-
-func cloneTransport() *http.Transport {
-	// Клонируем транспорт из DefaultTransport и настраиваем его
-	transport := http.DefaultTransport.(*http.Transport).Clone()
-	transport.TLSClientConfig = &tls.Config{
-		InsecureSkipVerify: true, // Этот параметр позволяет игнорировать проверку сертификата TLS (для примера)
-		// Другие параметры безопасности, если необходимо
-	}
-
-	return transport
-}
-
-func convert(w io.Writer, r io.Reader) error {
-	srcImage, err := imgconv.Decode(r)
-	if err != nil {
-		return fmt.Errorf("decode image: %w", err)
-	}
-
-	// Создаем экземпляр структуры imgconv.FormatOption
-	formatOption := imgconv.FormatOption{Format: imgconv.PNG}
-
-	err = imgconv.Write(w, srcImage, &formatOption)
-	if err != nil {
-		return fmt.Errorf("encode image: %w", err)
-	}
-
-	return nil
 }
