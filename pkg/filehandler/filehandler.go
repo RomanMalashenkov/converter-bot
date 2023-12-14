@@ -3,7 +3,6 @@ package filehandler
 import (
 	"log"
 	"os"
-	"os/exec"
 )
 
 // проверка существования папок и их создания (если отстутствуют)
@@ -17,6 +16,7 @@ func CheckFolder(store string) {
 	}
 }
 
+/*
 // ф-я для конвертации webm в mp4
 func WebmToMp4(in string, out string) error {
 	cmd := exec.Command("ffmpeg", "-i", in, out)
@@ -33,3 +33,4 @@ func WebmToMp4(in string, out string) error {
 	}
 	return nil
 }
+*/
