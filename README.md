@@ -1,5 +1,6 @@
 # tg_bot (converter)
 Телеграмм бот, который конвертирует файлы форматов jpg(jpeg), png, gif, tif(tiff), bmp и pdf друг в друга.<br>
+[Попробовать](https://t.me/conv_go_bot)<br>	
 <br>			
 В данном проекте использовались:<br>
     - библиотека для конвертации файлов [imgconv](https://github.com/sunshineplan/imgconv)<br>
