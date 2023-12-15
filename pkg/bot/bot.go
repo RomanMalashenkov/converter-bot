@@ -39,14 +39,21 @@ func StartBot() {
 	// ответ на команду /start
 	b.Handle("/start", func(c tele.Context) error {
 		log.Printf("[LOG]: User: %s | Controller: /start ", c.Message().Sender.Username)
-		_, err := b.Send(c.Chat(), "Привет, я бот-конвертер\nПришлите мне файл")
+		_, err := b.Send(c.Chat(), `Привет! Я ConvBot!
+Со мной вы можете конвертировать файлы одного формата в другой.
+На данный момент я конвертирую только изображения.
+
+Отправьте мне изображение в виде файла (документом).
+
+Для получения дополнительной информации нажмите на каманду /help
+		`)
 		return err
 	})
 
 	// ответ на команду /help
 	b.Handle("/help", func(c tele.Context) error {
 		log.Printf("[LOG]: User: %s | Controller: /help ", c.Message().Sender.Username)
-		_, err := b.Send(c.Chat(), "Я умею работать со следующими форматами:\njpg, jpeg, png, gif, tif, tiff, bmp, pdf")
+		_, err := b.Send(c.Chat(), "Поддерживающиеся форматы:\n\njpg, jpeg, png, gif, tif, tiff, bmp, pdf")
 		return err
 	})
 
