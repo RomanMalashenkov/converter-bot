@@ -9,7 +9,6 @@ import (
 
 type BotConf struct {
 	TelegramToken string
-	//Store         string
 }
 
 // получение конфигур бота из переменных окружения
@@ -23,6 +22,5 @@ func GetConfig() (*BotConf, error) {
 
 	return &BotConf{
 		TelegramToken: os.Getenv("TELE_TOKEN"),
-		//Store:         os.Getenv("STORE"),
 	}, nil
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/RomanMalashenkov/tg_bot/pkg/api"
 	"github.com/RomanMalashenkov/tg_bot/pkg/config"
 	"github.com/RomanMalashenkov/tg_bot/pkg/converter"
-	"github.com/RomanMalashenkov/tg_bot/pkg/filehandler"
 
 	"github.com/sunshineplan/imgconv"
 	tele "gopkg.in/telebot.v3"
@@ -34,7 +33,7 @@ func StartBot() {
 		log.Fatal(err)
 	}
 
-	log.Print("Бот готов к работе")
+	log.Print("[LOG]: Бот готов к работе")
 
 	// ответ на команду /start
 	b.Handle("/start", func(c tele.Context) error {
@@ -100,16 +99,18 @@ func StartBot() {
 		return nil
 	})
 
-	// обработка выбора формата конвертации
+	// обработка выбора формата конвертации (когда польз нажал на кнопку)
 	b.Handle(tele.OnCallback, func(c tele.Context) error {
 		data := c.Callback().Data // появляется префикс ♀
+		//&&&&&&&&&&&&&&&&&&&&&&&&       мб данные надо без префикса??????
 
-		log.Printf("Получены данные из Callback: %v", data)
+		//log.Printf("Получены данные из Callback: %v", data)
+		log.Printf("[LOG]: User: %s | Controller: OnCalback ", c.Message().Sender.Username)
 
 		if userFileID != "" {
 			fileURL, err := api.GetFileURL(b, userFileID)
 			if err != nil {
-				log.Printf("Failed to get file URL: %s", err)
+				log.Printf("Не удалось получить URL-адрес файла: %s", err)
 				return err
 			}
 
@@ -132,12 +133,12 @@ func StartBot() {
 				}
 			}
 
-			log.Println("Пользователь выбрал формат конвертации:", selectedFormat)
+			log.Println("Пользователь выбрал формат для конвертации:", selectedFormat)
 
 			// Выполните конвертацию и отправку файла
-			err = filehandler.ConvertAndSendImage(fileURL, c, b, selectedFormat)
+			err = converter.ConvertAndSendImage(fileURL, c, b, selectedFormat)
 			if err != nil {
-				log.Printf("Failed to convert and send file: %s", err)
+				log.Printf("Не удалось преобразовать и отправить файл: %s", err)
 				return err
 			}
 		} else {
