@@ -163,6 +163,8 @@ func StartBot() {
 			if err != nil {
 				log.Printf("Не удалось преобразовать и отправить файл: %s", err)
 				return err
+			} else {
+				log.Println("Файл успешно сконвертирован и отправлен пользователю")
 			}
 		} else {
 			log.Println("Сообщение не содержит документ")
