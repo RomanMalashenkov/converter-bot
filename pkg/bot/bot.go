@@ -18,9 +18,8 @@ import (
 
 var (
 	userFileID string
+	taskQueue  *queue.Queue //для очереди
 )
-
-var taskQueue *queue.Queue // Объявляем переменную для очереди
 
 func StartBot() {
 	botConf, confErr := config.GetConfig()
@@ -59,7 +58,7 @@ func StartBot() {
 		return err
 	})
 
-	// Инициализируем очередь
+	// инициализируем очередь
 	taskQueue = queue.NewQueue()
 
 	// обработка изображения, отправленного пользователем
