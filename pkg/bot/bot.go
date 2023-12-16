@@ -10,6 +10,7 @@ import (
 	"github.com/RomanMalashenkov/tg_bot/pkg/api"
 	"github.com/RomanMalashenkov/tg_bot/pkg/config"
 	"github.com/RomanMalashenkov/tg_bot/pkg/converter"
+	"github.com/RomanMalashenkov/tg_bot/pkg/queue"
 
 	"github.com/sunshineplan/imgconv"
 	tele "gopkg.in/telebot.v3"
@@ -18,6 +19,8 @@ import (
 var (
 	userFileID string
 )
+
+var taskQueue *queue.Queue // Объявляем переменную для очереди
 
 func StartBot() {
 	botConf, confErr := config.GetConfig()
@@ -56,6 +59,9 @@ func StartBot() {
 		return err
 	})
 
+	// Инициализируем очередь
+	taskQueue = queue.NewQueue()
+
 	// обработка изображения, отправленного пользователем
 	b.Handle(tele.OnDocument, func(c tele.Context) error {
 		log.Printf("[LOG]: User: %s | Controller: OnDocument ", c.Message().Sender.Username)
@@ -73,6 +79,25 @@ func StartBot() {
 			return err
 		}
 
+		// Добавляем задачу в очередь
+		taskID := doc.FileID // Используем ID файла в качестве задачи
+		err := taskQueue.AddTaskToQueue(taskID)
+		if err != nil {
+			log.Printf("Не удалось добавить задачу в очередь: %s", err)
+			return err
+		} else {
+			log.Printf("Задача успешно добавлена в очередь. ID задачи: %s", taskID)
+		}
+
+		// Проверяем содержимое очереди после добавления задачи
+		task, err := taskQueue.GetTaskFromQueue()
+		if err != nil {
+			log.Printf("Не удалось получить задачу из очереди: %s", err)
+		} else {
+			log.Printf("Получена задача из очереди: %s", task)
+		}
+		// Обновляем userFileID для текущего файла
+		userFileID = taskID
 		// Создание кнопок для выбора формата конвертации
 		btns := [][]tele.Btn{
 			{
@@ -102,7 +127,6 @@ func StartBot() {
 	// обработка выбора формата конвертации (когда польз нажал на кнопку)
 	b.Handle(tele.OnCallback, func(c tele.Context) error {
 		data := c.Callback().Data // появляется префикс ♀
-		//&&&&&&&&&&&&&&&&&&&&&&&&       мб данные надо без префикса??????
 
 		//log.Printf("Получены данные из Callback: %v", data)
 		log.Printf("[LOG]: User: %s | Controller: OnCalback ", c.Message().Sender.Username)
